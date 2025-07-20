@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cassava App Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .status { padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .success { background: rgba(76, 175, 80, 0.3); }
+        .info { background: rgba(33, 150, 243, 0.3); }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover { background: #45a049; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌿 Cassava Leaf Disease Detector - Connection Test</h1>
+        
+        <div class="status success">
+            ✅ This page loaded successfully - your network connection is working!
+        </div>
+        
+        <div class="status info">
+            📍 Server Info:<br>
+            • IP Address: 172.30.0.2<br>
+            • Port: 7860<br>
+            • Status: Application Running
+        </div>
+        
+        <h3>🔗 Try These Links:</h3>
+        <button onclick="window.open('http://172.30.0.2:7860', '_blank')">
+            Open Main App (Network IP)
+        </button>
+        
+        <button onclick="window.open('http://localhost:7860', '_blank')">
+            Open Main App (Localhost)
+        </button>
+        
+        <h3>🛠️ Troubleshooting:</h3>
+        <ul>
+            <li>If you're accessing remotely, use SSH port forwarding</li>
+            <li>Check your firewall and security settings</li>
+            <li>Try a different browser or incognito mode</li>
+            <li>Ensure port 7860 is not blocked</li>
+        </ul>
+        
+        <div id="test-result"></div>
+        
+        <script>
+            // Test connection to the app
+            function testConnection() {
+                const urls = ['http://172.30.0.2:7860', 'http://localhost:7860'];
+                const resultDiv = document.getElementById('test-result');
+                
+                urls.forEach(url => {
+                    fetch(url)
+                        .then(response => {
+                            if (response.ok) {
+                                resultDiv.innerHTML += `<div class="status success">✅ ${url} is accessible!</div>`;
+                            } else {
+                                resultDiv.innerHTML += `<div class="status error">❌ ${url} returned status ${response.status}</div>`;
+                            }
+                        })
+                        .catch(error => {
+                            resultDiv.innerHTML += `<div class="status error">❌ ${url} is not accessible: ${error.message}</div>`;
+                        });
+                });
+            }
+            
+            // Auto-test on page load
+            setTimeout(testConnection, 1000);
+        </script>
+    </div>
+</body>
+</html>

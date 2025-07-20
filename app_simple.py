@@ -325,12 +325,21 @@ def create_interface():
     
     return interface
 
-# Launch the application
+# Launch the interface
 if __name__ == "__main__":
-    app = create_interface()
-    app.launch(
-        server_name="0.0.0.0",
-        server_port=7860,
-        share=True,
-        show_error=True
+    print("🌿 Starting Cassava Leaf Disease Detector...")
+    print("📡 The application will be accessible at:")
+    print("   - Local: http://localhost:7860")
+    print("   - Network: http://0.0.0.0:7860")
+    print("🔄 Loading interface...")
+    
+    interface = create_interface()
+    interface.launch(
+        server_name="0.0.0.0",  # Listen on all interfaces
+        server_port=7860,       # Use port 7860
+        share=False,            # Don't create public link
+        debug=True,             # Enable debug mode
+        show_error=True,        # Show errors in interface
+        inbrowser=False,        # Don't auto-open browser
+        quiet=False             # Show startup messages
     )
