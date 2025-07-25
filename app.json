@@ -1,0 +1,62 @@
+{
+  "expo": {
+    "name": "CassavaDoc",
+    "slug": "cassavadoc",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#16a34a"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cassavadoc.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs access to camera to capture cassava leaf images for disease detection.",
+        "NSPhotoLibraryUsageDescription": "This app needs access to photo library to select cassava leaf images for analysis."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#16a34a"
+      },
+      "package": "com.cassavadoc.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you select cassava leaf images for disease analysis.",
+          "cameraPermission": "The app accesses your camera to let you capture cassava leaf images for disease detection."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow CassavaDoc to access your camera to capture leaf images for disease detection."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "cassavadoc-mobile-app"
+      }
+    }
+  }
+}
