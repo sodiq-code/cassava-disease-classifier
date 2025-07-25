@@ -27,8 +27,8 @@ const HomeScreen = ({ navigation }) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
-      // Check for anomalies
-      const anomalyCheck = detectAnomaly(imageUri);
+      // Check for anomalies (basic check, API will do detailed check)
+      const anomalyCheck = await detectAnomaly(imageUri);
       if (!anomalyCheck.isValid) {
         Alert.alert(
           'Invalid Image',
@@ -39,13 +39,13 @@ const HomeScreen = ({ navigation }) => {
         return;
       }
 
-      // Predict disease
+      // Predict disease using backend API
       const prediction = await predictImage(imageUri);
       
       if (prediction.confidence < 60) {
         Alert.alert(
           'Low Confidence',
-          `Prediction confidence: ${prediction.confidence.toFixed(1)}%. Please try with a clearer image.`,
+          `Prediction confidence: ${prediction.confidence.toFixed(1)}%. Please try with a clearer image.${!prediction.isFromAPI ? '\n\n⚠️ Using offline mode - connect to internet for better accuracy.' : ''}`,
           [{ text: 'OK', style: 'default' }]
         );
         setIsAnalyzing(false);
@@ -59,6 +59,7 @@ const HomeScreen = ({ navigation }) => {
         className: prediction.className,
         confidence: prediction.confidence,
         timestamp: new Date().toISOString(),
+        isFromAPI: prediction.isFromAPI || false,
       };
 
       await saveToHistory(analysisResult);
@@ -67,9 +68,15 @@ const HomeScreen = ({ navigation }) => {
       navigation.navigate('Result', { result: analysisResult });
 
     } catch (error) {
+      const errorMessage = error.message.includes('Insufficient vegetation') || 
+                          error.message.includes('Anomaly') ||
+                          error.message.includes('detected')
+        ? error.message
+        : 'An error occurred while analyzing the image. Please try again.';
+      
       Alert.alert(
         'Analysis Error',
-        'An error occurred while analyzing the image. Please try again.',
+        errorMessage,
         [{ text: 'OK', style: 'default' }]
       );
     } finally {

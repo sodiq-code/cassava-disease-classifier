@@ -140,6 +140,19 @@ Analyzed on: ${new Date(result.timestamp).toLocaleDateString()}
                 {new Date(result.timestamp).toLocaleString()}
               </Text>
             </View>
+
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>Analysis Mode</Text>
+              <Text style={[
+                styles.infoValue,
+                { 
+                  color: result.isFromAPI ? COLORS.success : COLORS.warning,
+                  fontWeight: '600'
+                }
+              ]}>
+                {result.isFromAPI ? '🌐 Online (API)' : '📱 Offline (Local)'}
+              </Text>
+            </View>
           </View>
         </View>
 
