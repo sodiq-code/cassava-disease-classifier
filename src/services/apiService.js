@@ -71,7 +71,7 @@ class ApiService {
         uri: imageUri,
         type: mimeType,
         name: `image.${fileExtension}`,
-      } as any);
+      });
 
       // Make API request
       const apiResponse = await fetch(`${this.baseURL}/predict`, {
@@ -132,7 +132,7 @@ class ApiService {
           uri: imageUri,
           type: mimeType,
           name: `image_${i + 1}.${fileExtension}`,
-        } as any);
+        });
       }
 
       // Make API request

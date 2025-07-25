@@ -102,8 +102,8 @@ const CameraScreen = ({ navigation, route }) => {
       <Camera
         ref={cameraRef}
         style={styles.camera}
-        type={type}
-        flashMode={flashMode}
+        facing={type}
+        flash={flashMode}
         ratio="16:9"
       >
         {/* Camera Overlay */}
@@ -125,10 +125,10 @@ const CameraScreen = ({ navigation, route }) => {
           {/* Center Guide */}
           <View style={styles.centerGuide}>
             <View style={styles.focusFrame}>
-              <View style={styles.corner} style={[styles.corner, styles.topLeft]} />
-              <View style={styles.corner} style={[styles.corner, styles.topRight]} />
-              <View style={styles.corner} style={[styles.corner, styles.bottomLeft]} />
-              <View style={styles.corner} style={[styles.corner, styles.bottomRight]} />
+              <View style={[styles.corner, styles.topLeft]} />
+              <View style={[styles.corner, styles.topRight]} />
+              <View style={[styles.corner, styles.bottomLeft]} />
+              <View style={[styles.corner, styles.bottomRight]} />
               <Text style={styles.guideText}>Position cassava leaf here</Text>
             </View>
           </View>

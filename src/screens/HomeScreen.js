@@ -130,7 +130,7 @@ const HomeScreen = ({ navigation }) => {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            <Text style={styles.heroTitle}>AI-Powered Disease Detection</Text>
+            <Text style={styles.heroTitle}>Cassava AI Disease Detector</Text>
             <Text style={styles.heroSubtitle}>
               Get instant diagnosis of cassava leaf diseases using advanced machine learning
             </Text>
@@ -166,7 +166,7 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.tipsSection}>
           <View style={styles.tipsHeader}>
             <Text style={styles.tipsIcon}>💡</Text>
-            <Text style={styles.tipsTitle}>Photography Tips</Text>
+            <Text style={styles.tipsTitle}>Tips</Text>
           </View>
           <View style={styles.tipsContainer}>
             {PHOTOGRAPHY_TIPS.map((tip, index) => (

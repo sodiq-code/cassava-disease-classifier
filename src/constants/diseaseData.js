@@ -40,7 +40,6 @@ export const PHOTOGRAPHY_TIPS = [
   "Use clear, well lit cassava leaf image",
   "Ensure the leaf fills most of the frame",
   "Avoid blurry or dark photos",
-  "Hold the phone steady when capturing",
   "Make sure the leaf is clearly visible"
 ];
 
