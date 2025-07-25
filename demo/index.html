@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌿 CassavaDoc Mobile App - Interface Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .demo-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #16a34a;
+            margin-bottom: 10px;
+        }
+
+        .demo-subtitle {
+            font-size: 1.2rem;
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .screen-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: #16a34a;
+            color: white;
+            border-color: #16a34a;
+        }
+
+        .tab-button:hover {
+            border-color: #16a34a;
+            color: #16a34a;
+        }
+
+        .tab-button.active:hover {
+            color: white;
+        }
+
+        .phone-mockup {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 40px;
+            padding: 8px;
+            margin: 0 auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background: #f8fafc;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #16a34a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .app-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .screen-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .screen {
+            display: none;
+            height: calc(100% - 44px);
+            flex-direction: column;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Home Screen Styles */
+        .hero-section {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 24px;
+            color: white;
+        }
+
+        .hero-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .hero-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-button.secondary {
+            background: white;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+
+        .tips-section {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .tips-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            color: #0369a1;
+            font-weight: 600;
+        }
+
+        .tips-list {
+            list-style: none;
+        }
+
+        .tips-list li {
+            color: #0369a1;
+            font-size: 14px;
+            margin-bottom: 6px;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .tips-list li:before {
+            content: '•';
+            position: absolute;
+            left: 0;
+        }
+
+        /* Camera Screen Styles */
+        .camera-view {
+            background: #000;
+            flex: 1;
+            border-radius: 12px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .camera-controls {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .control-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: rgba(0,0,0,0.5);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .focus-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 3px solid white;
+            border-radius: 12px;
+            opacity: 0.8;
+        }
+
+        .focus-corners {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid white;
+        }
+
+        .corner-tl { top: -3px; left: -3px; border-right: none; border-bottom: none; }
+        .corner-tr { top: -3px; right: -3px; border-left: none; border-bottom: none; }
+        .corner-bl { bottom: -3px; left: -3px; border-right: none; border-top: none; }
+        .corner-br { bottom: -3px; right: -3px; border-left: none; border-top: none; }
+
+        .capture-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 40px;
+            background: white;
+            border: none;
+            margin: 0 auto;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .capture-inner {
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background: #16a34a;
+            margin: 10px auto;
+        }
+
+        /* Result Screen Styles */
+        .result-header {
+            background: linear-gradient(135deg, #dc2626, #dc2626CC);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .result-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .confidence-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .result-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 16px;
+            border: 3px solid #16a34a;
+            margin: 0 auto 20px;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .info-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        .info-item {
+            margin-bottom: 12px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #16a34a;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            color: #1f2937;
+            line-height: 1.4;
+        }
+
+        /* History Screen Styles */
+        .history-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .history-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            border: 2px solid #16a34a;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .history-content {
+            flex: 1;
+        }
+
+        .history-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .history-meta {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #16a34a;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .demo-info {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 30px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .demo-info h3 {
+            color: #16a34a;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .demo-info p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .feature-item {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 4px solid #16a34a;
+        }
+
+        .feature-item h4 {
+            color: #16a34a;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .feature-item p {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .phone-mockup {
+                width: 320px;
+                height: 640px;
+            }
+            
+            .demo-title {
+                font-size: 2rem;
+            }
+            
+            .screen-tabs {
+                gap: 5px;
+            }
+            
+            .tab-button {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1 class="demo-title">🌿 CassavaDoc Mobile App</h1>
+            <p class="demo-subtitle">Interactive Interface Demo - React Native Mobile Application</p>
+        </div>
+
+        <div class="screen-tabs">
+            <button class="tab-button active" onclick="showScreen('home')">🏠 Home</button>
+            <button class="tab-button" onclick="showScreen('camera')">📷 Camera</button>
+            <button class="tab-button" onclick="showScreen('result')">📊 Result</button>
+            <button class="tab-button" onclick="showScreen('history')">📂 History</button>
+            <button class="tab-button" onclick="showScreen('loading')">⏳ Loading</button>
+        </div>
+
+        <div class="phone-mockup">
+            <div class="phone-screen">
+                <div class="status-bar">
+                    <span>9:41 AM</span>
+                    <span>🌿 CassavaDoc</span>
+                    <span>🔋 100%</span>
+                </div>
+
+                <!-- Home Screen -->
+                <div class="screen active" id="home-screen">
+                    <div class="app-header">
+                        <div class="app-title">🌿 CassavaDoc</div>
+                        <div class="app-subtitle">AI-powered cassava leaf disease detection</div>
+                    </div>
+                    <div class="screen-content">
+                        <div class="hero-section">
+                            <div class="hero-title">AI-Powered Disease Detection</div>
+                            <div class="hero-subtitle">Get instant diagnosis of cassava leaf diseases using advanced machine learning</div>
+                        </div>
+
+                        <button class="action-button" onclick="showScreen('camera')">
+                            📷 Take Photo
+                        </button>
+                        <button class="action-button">
+                            📁 Choose from Gallery
+                        </button>
+                        <button class="action-button secondary" onclick="showScreen('history')">
+                            📂 View History
+                        </button>
+
+                        <div class="tips-section">
+                            <div class="tips-header">
+                                💡 Photography Tips
+                            </div>
+                            <ul class="tips-list">
+                                <li>Use clear, well lit cassava leaf image</li>
+                                <li>Ensure the leaf fills most of the frame</li>
+                                <li>Avoid blurry or dark photos</li>
+                                <li>Hold the phone steady when capturing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Camera Screen -->
+                <div class="screen" id="camera-screen">
+                    <div class="camera-view">
+                        <div class="camera-controls">
+                            <button class="control-button">⚡</button>
+                            <button class="control-button">🔄</button>
+                        </div>
+                        
+                        <div class="focus-frame">
+                            <div class="focus-corners corner-tl"></div>
+                            <div class="focus-corners corner-tr"></div>
+                            <div class="focus-corners corner-bl"></div>
+                            <div class="focus-corners corner-br"></div>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 14px; text-align: center; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 20px;">
+                                Position cassava leaf here
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <button class="capture-button" onclick="simulateCapture()">
+                                <div class="capture-inner"></div>
+                            </button>
+                            <div style="color: white; font-size: 12px; margin-top: 16px; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 16px; display: inline-block;">
+                                📸 Tap to capture • 💡 Ensure good lighting
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Screen -->
+                <div class="screen" id="result-screen">
+                    <div class="screen-content">
+                        <div class="result-header">
+                            <div class="result-icon">🦠</div>
+                            <div class="result-title">Cassava Bacterial Blight (CBB)</div>
+                            <div class="confidence-badge">87.3% Confidence</div>
+                        </div>
+
+                        <div class="result-image">🌿</div>
+
+                        <div class="info-card">
+                            <div class="info-title">Disease Information</div>
+                            <div class="info-item">
+                                <div class="info-label">Description</div>
+                                <div class="info-value">Bacterial infection causing angular leaf spots and wilting</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Recommended Treatment</div>
+                                <div class="info-value">Remove infected plants, use copper-based treatments</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Severity</div>
+                                <div class="info-value" style="color: #dc2626; font-weight: 600;">High</div>
+                            </div>
+                        </div>
+
+                        <button class="action-button" onclick="showScreen('home')">
+                            🔍 Analyze Another Image
+                        </button>
+                    </div>
+                </div>
+
+                <!-- History Screen -->
+                <div class="screen" id="history-screen">
+                    <div class="screen-content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div style="font-size: 16px; font-weight: 700; color: #1f2937;">3 Analyses</div>
+                            <button style="background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;">🗑️ Clear All</button>
+                        </div>
+
+                        <div class="history-item">
+                            <div class="history-image">🦠</div>
+                            <div class="history-content">
+                                <div class="history-title">Cassava Bacterial Blight (CBB)</div>
+                                <div class="history-meta">87% confidence • Today 2:30 PM</div>
+                            </div>
+                        </div>
+
+                        <div class="history-item">
+                            <div class="history-image">✅</div>
+                            <div class="history-content">
+                                <div class="history-title">Healthy Cassava Leaf</div>
+                                <div class="history-meta">92% confidence • Yesterday 4:15 PM</div>
+                            </div>
+                        </div>
+
+                        <div class="history-item">
+                            <div class="history-image">🧫</div>
+                            <div class="history-content">
+                                <div class="history-title">Cassava Mosaic Disease (CMD)</div>
+                                <div class="history-meta">74% confidence • Dec 23, 1:20 PM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading Screen -->
+                <div class="screen" id="loading-screen">
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <div style="font-size: 16px; font-weight: 600; color: #16a34a; margin-bottom: 8px;">
+                            🔍 Analyzing Image...
+                        </div>
+                        <div style="font-size: 14px; color: #6b7280;">
+                            Processing your cassava leaf image...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-info">
+            <h3>🚀 React Native Mobile App Features</h3>
+            <p>This is a fully functional React Native mobile application built with Expo. The interface you see above represents the actual mobile app screens that users will interact with on their Android and iOS devices.</p>
+            
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h4>📱 Native Mobile Experience</h4>
+                    <p>Built with React Native for true native performance on both Android and iOS platforms</p>
+                </div>
+                <div class="feature-item">
+                    <h4>📷 Camera Integration</h4>
+                    <p>Professional camera interface with focus guides and flash controls for optimal image capture</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🎨 Modern UI Design</h4>
+                    <p>Beautiful, responsive interface with smooth animations and haptic feedback</p>
+                </div>
+                <div class="feature-item">
+                    <h4>💾 Local Storage</h4>
+                    <p>Analysis history saved locally on device using AsyncStorage</p>
+                </div>
+                <div class="feature-item">
+                    <h4>🔄 Real-time Analysis</h4>
+                    <p>Mock AI analysis with loading states and confidence scoring</p>
+                </div>
+                <div class="feature-item">
+                    <h4>📤 Share Results</h4>
+                    <p>Share analysis results with others via native sharing functionality</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 24px;">📦 How to Build APK</h3>
+            <p><strong>Quick Build:</strong></p>
+            <pre style="background: #f1f5f9; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 14px; margin: 12px 0;">
+# Install dependencies
+npm install
+
+# Build APK using EAS
+npm install -g eas-cli
+eas login
+eas build --platform android --profile preview
+            </pre>
+            
+            <p><strong>Development Testing:</strong></p>
+            <pre style="background: #f1f5f9; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 14px; margin: 12px 0;">
+# Start development server
+npm start
+
+# Scan QR code with Expo Go app on your phone
+            </pre>
+        </div>
+    </div>
+
+    <script>
+        function showScreen(screenName) {
+            // Hide all screens
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => screen.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab-button');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected screen
+            document.getElementById(screenName + '-screen').classList.add('active');
+            
+            // Activate corresponding tab
+            event.target.classList.add('active');
+        }
+
+        function simulateCapture() {
+            showScreen('loading');
+            setTimeout(() => {
+                showScreen('result');
+            }, 2000);
+        }
+
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulate some dynamic behavior
+            const captureButton = document.querySelector('.capture-button');
+            if (captureButton) {
+                captureButton.addEventListener('mousedown', function() {
+                    this.style.transform = 'scale(0.95)';
+                });
+                captureButton.addEventListener('mouseup', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
