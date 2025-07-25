@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import HomeScreen from './src/screens/HomeScreen';
 import CameraScreen from './src/screens/CameraScreen';
 import ResultScreen from './src/screens/ResultScreen';
+import BatchResultScreen from './src/screens/BatchResultScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 
 const Stack = createStackNavigator();
@@ -49,6 +50,14 @@ export default function App() {
             component={ResultScreen}
             options={{
               title: '📊 Analysis Results',
+              headerTitleAlign: 'center',
+            }}
+          />
+          <Stack.Screen 
+            name="BatchResult" 
+            component={BatchResultScreen}
+            options={{
+              title: '📊 Batch Results',
               headerTitleAlign: 'center',
             }}
           />

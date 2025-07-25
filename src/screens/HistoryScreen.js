@@ -69,60 +69,126 @@ const HistoryScreen = ({ navigation }) => {
   };
 
   const viewResult = (result) => {
-    navigation.navigate('Result', { result });
+    if (result.type === 'batch') {
+      navigation.navigate('BatchResult', { batchResult: result });
+    } else {
+      navigation.navigate('Result', { result });
+    }
   };
 
-  const renderHistoryItem = ({ item }) => {
+  const renderSingleImageItem = (item) => {
     const diseaseInfo = DISEASE_INFO[item.className];
     const date = new Date(item.timestamp);
     
     return (
+      <View style={styles.itemImageContainer}>
+        <Image source={{ uri: item.imageUri }} style={styles.itemImage} />
+        <View style={styles.confidenceOverlay}>
+          <Text style={styles.confidenceText}>
+            {item.confidence.toFixed(0)}%
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
+  const renderBatchImageItem = (item) => {
+    const date = new Date(item.timestamp);
+    const successfulResults = item.results.filter(r => !r.error);
+    const totalImages = item.totalImages || item.imageUris.length;
+    
+    return (
+      <View style={styles.batchImageContainer}>
+        <View style={styles.batchImagesGrid}>
+          {item.imageUris.slice(0, 4).map((imageUri, index) => (
+            <Image 
+              key={index} 
+              source={{ uri: imageUri }} 
+              style={styles.batchGridImage} 
+            />
+          ))}
+          {totalImages > 4 && (
+            <View style={styles.moreImagesOverlay}>
+              <Text style={styles.moreImagesText}>+{totalImages - 4}</Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.batchStatsOverlay}>
+          <Text style={styles.batchStatsText}>
+            {successfulResults.length}/{totalImages}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
+  const renderHistoryItem = ({ item }) => {
+    const date = new Date(item.timestamp);
+    const isBatch = item.type === 'batch';
+    
+    return (
       <TouchableOpacity 
-        style={styles.historyItem}
+        style={[styles.historyItem, isBatch && styles.batchHistoryItem]}
         onPress={() => viewResult(item)}
         activeOpacity={0.7}
       >
-        <View style={styles.itemImageContainer}>
-          <Image source={{ uri: item.imageUri }} style={styles.itemImage} />
-          <View style={styles.confidenceOverlay}>
-            <Text style={styles.confidenceText}>
-              {item.confidence.toFixed(0)}%
-            </Text>
-          </View>
-        </View>
+        {isBatch ? renderBatchImageItem(item) : renderSingleImageItem(item)}
         
         <View style={styles.itemContent}>
           <View style={styles.itemHeader}>
-            <Text style={styles.itemIcon}>{diseaseInfo.icon}</Text>
-            <View style={styles.itemTitleContainer}>
-              <Text style={styles.itemTitle} numberOfLines={2}>
-                {item.className}
-              </Text>
-              <View 
-                style={[
-                  styles.severityBadge,
-                  { backgroundColor: `${diseaseInfo.color}20` }
-                ]}
-              >
-                <Text 
-                  style={[
-                    styles.severityText,
-                    { color: diseaseInfo.color }
-                  ]}
-                >
-                  {diseaseInfo.severity}
-                </Text>
-              </View>
-            </View>
+            {isBatch ? (
+              <>
+                <Text style={styles.itemIcon}>🖼️</Text>
+                <View style={styles.itemTitleContainer}>
+                  <Text style={styles.itemTitle} numberOfLines={2}>
+                    Batch Analysis ({item.totalImages || item.imageUris.length} images)
+                  </Text>
+                  <View style={styles.batchBadge}>
+                    <Text style={styles.batchBadgeText}>
+                      {item.results.filter(r => !r.error).length} successful
+                    </Text>
+                  </View>
+                </View>
+              </>
+            ) : (
+              <>
+                <Text style={styles.itemIcon}>{DISEASE_INFO[item.className]?.icon}</Text>
+                <View style={styles.itemTitleContainer}>
+                  <Text style={styles.itemTitle} numberOfLines={2}>
+                    {item.className}
+                  </Text>
+                  <View 
+                    style={[
+                      styles.severityBadge,
+                      { backgroundColor: `${DISEASE_INFO[item.className]?.color}20` }
+                    ]}
+                  >
+                    <Text 
+                      style={[
+                        styles.severityText,
+                        { color: DISEASE_INFO[item.className]?.color }
+                      ]}
+                    >
+                      {DISEASE_INFO[item.className]?.severity}
+                    </Text>
+                  </View>
+                </View>
+              </>
+            )}
           </View>
           
           <View style={styles.itemFooter}>
-            <Text style={styles.itemDate}>
-              {date.toLocaleDateString()} • {date.toLocaleTimeString([], { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}
-            </Text>
+            <View style={styles.itemFooterLeft}>
+              <Text style={styles.itemDate}>
+                {date.toLocaleDateString()} • {date.toLocaleTimeString([], { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })}
+              </Text>
+              <Text style={styles.analysisMode}>
+                {item.isFromAPI ? '🌐 Online' : '📱 Offline'}
+              </Text>
+            </View>
             <Ionicons name="chevron-forward" size={16} color={COLORS.textSecondary} />
           </View>
         </View>
@@ -158,35 +224,39 @@ const HistoryScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        {history.length > 0 && (
-          <View style={styles.headerSection}>
-            <Text style={styles.headerTitle}>
-              {history.length} Analysis{history.length !== 1 ? 'es' : ''}
-            </Text>
-            <TouchableOpacity 
-              style={styles.clearButton}
-              onPress={clearAllHistory}
-            >
-              <Ionicons name="trash-outline" size={16} color={COLORS.error} />
-              <Text style={styles.clearButtonText}>Clear All</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
-        <FlatList
-          data={history}
-          renderItem={renderHistoryItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          ListEmptyComponent={renderEmptyState}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-        />
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Analysis History</Text>
+        <Text style={styles.headerSubtitle}>
+          {history.length} {history.length === 1 ? 'analysis' : 'analyses'} saved
+        </Text>
       </View>
+
+      {history.length > 0 && (
+        <View style={styles.actionBar}>
+          <ActionButton
+            title="Clear All"
+            icon="🗑️"
+            onPress={clearAllHistory}
+            variant="secondary"
+            style={styles.clearButton}
+          />
+        </View>
+      )}
+
+      <FlatList
+        data={history}
+        renderItem={renderHistoryItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={[
+          styles.listContainer,
+          history.length === 0 && styles.emptyListContainer
+        ]}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        ListEmptyComponent={renderEmptyState}
+        showsVerticalScrollIndicator={false}
+      />
     </SafeAreaView>
   );
 };
@@ -195,10 +265,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
   },
   loadingContainer: {
     flex: 1,
@@ -209,76 +275,130 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.textSecondary,
   },
-  headerSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 4,
+  header: {
+    padding: 16,
+    backgroundColor: COLORS.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
     color: COLORS.text,
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
+  actionBar: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: COLORS.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   clearButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: `${COLORS.error}10`,
-  },
-  clearButtonText: {
-    color: COLORS.error,
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 4,
+    alignSelf: 'flex-end',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   listContainer: {
-    flexGrow: 1,
+    padding: 16,
+  },
+  emptyListContainer: {
+    flex: 1,
   },
   historyItem: {
     backgroundColor: COLORS.surface,
     borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginBottom: 12,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+    overflow: 'hidden',
+    flexDirection: 'row',
+  },
+  batchHistoryItem: {
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.secondary,
   },
   itemImageContainer: {
+    width: 80,
+    height: 80,
     position: 'relative',
-    marginRight: 16,
   },
   itemImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: COLORS.primary,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   },
   confidenceOverlay: {
     position: 'absolute',
-    bottom: -4,
-    right: -4,
-    backgroundColor: COLORS.primary,
-    borderRadius: 10,
+    bottom: 4,
+    right: 4,
+    backgroundColor: 'rgba(22, 163, 74, 0.9)',
     paddingHorizontal: 6,
     paddingVertical: 2,
-    minWidth: 32,
-    alignItems: 'center',
+    borderRadius: 8,
   },
   confidenceText: {
     color: '#ffffff',
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: '600',
+  },
+  batchImageContainer: {
+    width: 80,
+    height: 80,
+    position: 'relative',
+  },
+  batchImagesGrid: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  batchGridImage: {
+    width: '50%',
+    height: '50%',
+    resizeMode: 'cover',
+    borderWidth: 0.5,
+    borderColor: '#ffffff',
+  },
+  moreImagesOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: '50%',
+    height: '50%',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  moreImagesText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  batchStatsOverlay: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+    backgroundColor: 'rgba(34, 197, 94, 0.9)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  batchStatsText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '600',
   },
   itemContent: {
     flex: 1,
+    padding: 12,
+    justifyContent: 'space-between',
   },
   itemHeader: {
     flexDirection: 'row',
@@ -286,9 +406,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   itemIcon: {
-    fontSize: 20,
-    marginRight: 8,
-    marginTop: 2,
+    fontSize: 24,
+    marginRight: 12,
   },
   itemTitleContainer: {
     flex: 1,
@@ -301,33 +420,50 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   severityBadge: {
-    alignSelf: 'flex-start',
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 4,
     borderRadius: 8,
+    alignSelf: 'flex-start',
   },
   severityText: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
-    textTransform: 'uppercase',
+  },
+  batchBadge: {
+    backgroundColor: `${COLORS.secondary}20`,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  batchBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.secondary,
   },
   itemFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  itemFooterLeft: {
+    flex: 1,
+  },
   itemDate: {
     fontSize: 12,
     color: COLORS.textSecondary,
+    marginBottom: 2,
   },
-  separator: {
-    height: 12,
+  analysisMode: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
   },
   emptyState: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: 32,
   },
   emptyIcon: {
     fontSize: 64,
@@ -345,7 +481,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 32,
+    marginBottom: 24,
   },
   emptyButton: {
     minWidth: 200,

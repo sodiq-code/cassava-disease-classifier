@@ -16,7 +16,7 @@ import * as Haptics from 'expo-haptics';
 import ActionButton from '../components/ActionButton';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { COLORS, PHOTOGRAPHY_TIPS } from '../constants/diseaseData';
-import { predictImage, detectAnomaly } from '../utils/imageProcessing';
+import { predictImage, detectAnomaly, predictMultipleImages } from '../utils/imageProcessing';
 import { saveToHistory } from '../utils/storage';
 
 const HomeScreen = ({ navigation }) => {
@@ -84,7 +84,43 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  const pickImageFromGallery = async () => {
+  const analyzeMultipleImages = async (imageUris) => {
+    setIsAnalyzing(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    try {
+      // Process multiple images
+      const results = await predictMultipleImages(imageUris);
+      
+      // Create batch analysis result
+      const batchResult = {
+        id: Date.now().toString(),
+        type: 'batch',
+        imageUris,
+        results: results.results,
+        timestamp: new Date().toISOString(),
+        isFromAPI: results.isFromAPI || false,
+        totalImages: imageUris.length,
+      };
+
+      // Save batch to history
+      await saveToHistory(batchResult);
+
+      // Navigate to batch results
+      navigation.navigate('BatchResult', { batchResult });
+
+    } catch (error) {
+      Alert.alert(
+        'Batch Analysis Error',
+        'An error occurred while analyzing the images. Please try again.',
+        [{ text: 'OK', style: 'default' }]
+      );
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const pickSingleImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert(
@@ -107,6 +143,61 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
+  const pickMultipleImagesFromGallery = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert(
+        'Permission Required',
+        'Sorry, we need camera roll permissions to select images.',
+        [{ text: 'OK', style: 'default' }]
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      selectionLimit: 10, // Limit to 10 images for performance
+      quality: 0.8,
+      aspect: [1, 1],
+      allowsEditing: false, // Disable editing for multiple selection
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      if (result.assets.length === 1) {
+        // Single image selected, use regular analysis
+        await analyzeImage(result.assets[0].uri);
+      } else {
+        // Multiple images selected, use batch analysis
+        const imageUris = result.assets.map(asset => asset.uri);
+        await analyzeMultipleImages(imageUris);
+      }
+    }
+  };
+
+  const showGalleryOptions = () => {
+    Alert.alert(
+      'Select Images',
+      'Choose how many images you want to analyze',
+      [
+        {
+          text: 'Single Image',
+          onPress: pickSingleImageFromGallery,
+          style: 'default'
+        },
+        {
+          text: 'Multiple Images',
+          onPress: pickMultipleImagesFromGallery,
+          style: 'default'
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        }
+      ]
+    );
+  };
+
   const openCamera = () => {
     navigation.navigate('Camera', { onImageCaptured: analyzeImage });
   };
@@ -116,7 +207,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   if (isAnalyzing) {
-    return <LoadingSpinner message="Processing your cassava leaf image..." />;
+    return <LoadingSpinner message="Processing your cassava leaf images..." />;
   }
 
   return (
@@ -149,7 +240,7 @@ const HomeScreen = ({ navigation }) => {
           <ActionButton
             title="Choose from Gallery"
             icon="📁"
-            onPress={pickImageFromGallery}
+            onPress={showGalleryOptions}
             style={styles.actionButton}
           />
           
@@ -160,6 +251,24 @@ const HomeScreen = ({ navigation }) => {
             variant="secondary"
             style={styles.actionButton}
           />
+        </View>
+
+        {/* New Features Info */}
+        <View style={styles.featuresSection}>
+          <View style={styles.featureItem}>
+            <Text style={styles.featureIcon}>🖼️</Text>
+            <View style={styles.featureContent}>
+              <Text style={styles.featureTitle}>Multiple Image Analysis</Text>
+              <Text style={styles.featureText}>Select and analyze up to 10 images at once</Text>
+            </View>
+          </View>
+          <View style={styles.featureItem}>
+            <Text style={styles.featureIcon}>⚡</Text>
+            <View style={styles.featureContent}>
+              <Text style={styles.featureTitle}>Batch Processing</Text>
+              <Text style={styles.featureText}>Get results for all images simultaneously</Text>
+            </View>
+          </View>
         </View>
 
         {/* Tips Section */}
@@ -186,13 +295,13 @@ const HomeScreen = ({ navigation }) => {
               <View style={styles.stepNumber}>
                 <Text style={styles.stepNumberText}>1</Text>
               </View>
-              <Text style={styles.stepText}>Capture or select a clear image of a cassava leaf</Text>
+              <Text style={styles.stepText}>Capture or select images of cassava leaves</Text>
             </View>
             <View style={styles.step}>
               <View style={styles.stepNumber}>
                 <Text style={styles.stepNumberText}>2</Text>
               </View>
-              <Text style={styles.stepText}>Our AI analyzes the image for disease symptoms</Text>
+              <Text style={styles.stepText}>Our AI analyzes all images for disease symptoms</Text>
             </View>
             <View style={styles.step}>
               <View style={styles.stepNumber}>
@@ -241,6 +350,40 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     marginBottom: 12,
+  },
+  featuresSection: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  featureIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  featureContent: {
+    flex: 1,
+  },
+  featureTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 2,
+  },
+  featureText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
   },
   tipsSection: {
     backgroundColor: '#f0f9ff',
