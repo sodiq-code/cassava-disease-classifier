@@ -1,3 +1,13 @@
+"""
+Modified Gradio App with Button-Based Interface
+==============================================
+- Upload Images: Converted to button-triggered file upload
+- Camera Access: Converted to button-triggered native mobile camera
+- Maintains all original functionality for disease detection
+- Enhanced mobile-first responsive design
+- Perfect single and multiple image processing
+"""
+
 import gradio as gr
 import tensorflow as tf
 import numpy as np
