@@ -7,7 +7,7 @@ import {
   Alert,
   Dimensions,
 } from 'react-native';
-import { Camera } from 'expo-camera';
+import { CameraView, CameraType, FlashMode, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,19 +17,18 @@ import { COLORS } from '../constants/diseaseData';
 const { width, height } = Dimensions.get('window');
 
 const CameraScreen = ({ navigation, route }) => {
-  const [hasPermission, setHasPermission] = useState(null);
-  const [type, setType] = useState(Camera.Constants.Type.back);
-  const [flashMode, setFlashMode] = useState(Camera.Constants.FlashMode.off);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [facing, setFacing] = useState(CameraType.back);
+  const [flashMode, setFlashMode] = useState(FlashMode.off);
   const [isCapturing, setIsCapturing] = useState(false);
   const cameraRef = useRef(null);
   const { onImageCaptured } = route.params;
 
   useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
-  }, []);
+    if (!permission) {
+      requestPermission();
+    }
+  }, [permission, requestPermission]);
 
   const takePicture = async () => {
     if (cameraRef.current && !isCapturing) {
@@ -49,6 +48,7 @@ const CameraScreen = ({ navigation, route }) => {
           onImageCaptured(photo.uri);
         }
       } catch (error) {
+        console.error('Camera capture error:', error);
         Alert.alert(
           'Camera Error',
           'Failed to capture image. Please try again.',
@@ -62,23 +62,23 @@ const CameraScreen = ({ navigation, route }) => {
 
   const toggleFlash = () => {
     setFlashMode(
-      flashMode === Camera.Constants.FlashMode.off
-        ? Camera.Constants.FlashMode.on
-        : Camera.Constants.FlashMode.off
+      flashMode === FlashMode.off
+        ? FlashMode.on
+        : FlashMode.off
     );
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
   const flipCamera = () => {
-    setType(
-      type === Camera.Constants.Type.back
-        ? Camera.Constants.Type.front
-        : Camera.Constants.Type.back
+    setFacing(
+      facing === CameraType.back
+        ? CameraType.front
+        : CameraType.back
     );
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
-  if (hasPermission === null) {
+  if (!permission) {
     return (
       <View style={styles.permissionContainer}>
         <Text style={styles.permissionText}>Requesting camera permission...</Text>
@@ -86,24 +86,30 @@ const CameraScreen = ({ navigation, route }) => {
     );
   }
 
-  if (hasPermission === false) {
+  if (!permission.granted) {
     return (
       <View style={styles.permissionContainer}>
         <Text style={styles.permissionText}>No access to camera</Text>
         <Text style={styles.permissionSubtext}>
           Please enable camera permissions in your device settings to capture images.
         </Text>
+        <TouchableOpacity
+          style={styles.permissionButton}
+          onPress={requestPermission}
+        >
+          <Text style={styles.permissionButtonText}>Request Permission</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Camera
+      <CameraView
         ref={cameraRef}
         style={styles.camera}
-        type={type}
-        flashMode={flashMode}
+        facing={facing}
+        flash={flashMode}
         ratio="16:9"
       >
         {/* Camera Overlay */}
@@ -112,7 +118,7 @@ const CameraScreen = ({ navigation, route }) => {
           <View style={styles.topControls}>
             <TouchableOpacity style={styles.controlButton} onPress={toggleFlash}>
               <Ionicons
-                name={flashMode === Camera.Constants.FlashMode.off ? 'flash-off' : 'flash'}
+                name={flashMode === FlashMode.off ? 'flash-off' : 'flash'}
                 size={24}
                 color="#ffffff"
               />
@@ -125,10 +131,10 @@ const CameraScreen = ({ navigation, route }) => {
           {/* Center Guide */}
           <View style={styles.centerGuide}>
             <View style={styles.focusFrame}>
-              <View style={styles.corner} style={[styles.corner, styles.topLeft]} />
-              <View style={styles.corner} style={[styles.corner, styles.topRight]} />
-              <View style={styles.corner} style={[styles.corner, styles.bottomLeft]} />
-              <View style={styles.corner} style={[styles.corner, styles.bottomRight]} />
+              <View style={[styles.corner, styles.topLeft]} />
+              <View style={[styles.corner, styles.topRight]} />
+              <View style={[styles.corner, styles.bottomLeft]} />
+              <View style={[styles.corner, styles.bottomRight]} />
               <Text style={styles.guideText}>Position cassava leaf here</Text>
             </View>
           </View>
@@ -152,7 +158,7 @@ const CameraScreen = ({ navigation, route }) => {
             </View>
           </View>
         </View>
-      </Camera>
+      </CameraView>
     </SafeAreaView>
   );
 };
@@ -181,6 +187,18 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
+    marginBottom: 20,
+  },
+  permissionButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  permissionButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   camera: {
     flex: 1,

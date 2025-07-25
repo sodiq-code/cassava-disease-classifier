@@ -15,7 +15,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <StatusBar style="light" backgroundColor="#16a34a" />
+        <StatusBar style="light" />
         <Stack.Navigator
           initialRouteName="Home"
           screenOptions={{
