@@ -281,6 +281,15 @@ For support and questions:
 - Check the troubleshooting section
 - Review Expo documentation
 
----
+## 🎯 **Integration Status**
 
-**Note**: This app currently uses mock ML predictions. Replace the prediction logic in `src/utils/imageProcessing.js` with your actual trained model for real disease detection.
+✅ **FULLY INTEGRATED** - This app now uses your real ML models from Hugging Face Space!
+
+- **Backend API**: `https://afsod-cassava-backend-api.hf.space`
+- **Real ML Models**: TensorFlow Lite, Keras, and SVM models
+- **Live Predictions**: Actual disease detection with your trained models
+- **Fallback Mode**: Works offline if API unavailable
+
+### **Ready for Production Use!**
+
+The app is now completely ready with your actual ML backend integrated.
